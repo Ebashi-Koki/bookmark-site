@@ -52,7 +52,7 @@ function showBookmarks(link) {
 // 新しいフォルダを追加する関数
 // サイドバーに新しいフォルダを作成する
 function addFolder() {
-    const sidebar = document.querySelector('.sidebar'); // サイドバー要素を取得
+    const sidebar = document.querySelector('.left-sidebar'); // サイドバー要素を取得
     const newFolder = document.createElement('div'); // 新しいフォルダ要素を作成
     newFolder.className = 'folder'; // フォルダのクラスを設定
 
@@ -114,6 +114,7 @@ function addBookmark(button) {
 // ユーザーが入力したキーワードに基づいてフォルダをフィルタリング
 function searchFolders() {
     const query = document.getElementById('search').value.toLowerCase();
+    //value.toLowerCase:大文字・小文字の違いを無視した比較を行い、データ処理の一貫性を保つため、取得した値をすべて小文字に変換
     const folders = document.querySelectorAll('.folder, .subfolder');
     folders.forEach(folder => {
         const text = folder.textContent.toLowerCase();

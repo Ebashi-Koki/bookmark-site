@@ -18,11 +18,11 @@
         </div>
     </header>
     <div class="main">
-        <div class="left-sidebar">
+        <div class="sidebar">
+            
             <h2>フォルダ</h2>
             <!-- データベース接続部分をコメントアウト -->
             <?php
-            echo "しね";
             $servername = "localhost";
             $username = "root";
             $password = "";
@@ -43,28 +43,32 @@
                 $folders[] = $row;
             }
             $conn->close();
+            
 
             // 取得した想定でデータを直接埋め込む
             ?>
+
+            <ul>
+                <?php if (!empty($folders)): ?>
+                <?php foreach ($folders as $folder): ?>
+                <?php $classes = 'folder'; 
+                    if (!empty($folder['class'])){$classes .=''. htmlspecialchars($folder['class']);}
+                ?>
+                <li class="<?php echo $classes; ?>">
+                   <?php echo htmlspecialchars($folder['name']); ?>
+                </li>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <li>データがありません。</li>
+                <?php endif; ?>
+            </ul>
+
             <div class="folder" id="folder-1" draggable="true" ondragstart="drag(event)">
                 <a href="#" onclick="showBookmarks(this)">フォルダ 1</a>
                 <button class="add-subfolder-btn" onclick="addSubfolder(this)">サブフォルダ追加</button>
             </div>
-            <div class="folder" id="folder-2" draggable="true" ondragstart="drag(event)">
-                <a href="#" onclick="showBookmarks(this)">フォルダ 2</a>
-                <button class="add-subfolder-btn" onclick="addSubfolder(this)">サブフォルダ追加</button>
-                <div class="subfolder" id="folder-3" draggable="true" ondragstart="drag(event)">
-                    <a href="#" onclick="showBookmarks(this)">サブフォルダ 2-1</a>
-                </div>
-                <div class="subfolder" id="folder-4" draggable="true" ondragstart="drag(event)">
-                    <a href="#" onclick="showBookmarks(this)">サブフォルダ 2-2</a>
-                </div>
-            </div>
-            <div class="folder" id="folder-5" draggable="true" ondragstart="drag(event)">
-                <a href="#" onclick="showBookmarks(this)">フォルダ 3</a>
-                <button class="add-subfolder-btn" onclick="addSubfolder(this)">サブフォルダ追加</button>
-            </div>
         </div>
+
         <div class="content">
             <div class="content-header">
                 <h2 id="current-folder-name">ブックマーク</h2>
@@ -73,10 +77,13 @@
             </div>
             <div id="bookmarks-container"></div>
         </div>
+
         <div class="right-sidebar">
             <h3>タグ</h3>
-
+            <input type="text" id="search" placeholder="検索..." onkeyup="searchFolders()">
+            <div class="" id="">
         </div>
+
     </div>
     <script src="../js/bookmark.js"></script>
 </body>
