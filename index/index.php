@@ -21,7 +21,6 @@
         <div class="sidebar">
             
             <h2>フォルダ</h2>
-            <!-- データベース接続部分をコメントアウト -->
             <?php
             $servername = "localhost";
             $username = "root";
@@ -47,26 +46,13 @@
 
             // 取得した想定でデータを直接埋め込む
             ?>
-
-            <ul>
-                <?php if (!empty($folders)): ?>
-                <?php foreach ($folders as $folder): ?>
-                <?php $classes = 'folder'; 
-                    if (!empty($folder['class'])){$classes .=''. htmlspecialchars($folder['class']);}
-                ?>
-                <li class="<?php echo $classes; ?>">
-                   <?php echo htmlspecialchars($folder['name']); ?>
-                </li>
-                <?php endforeach; ?>
-                <?php else: ?>
-                <li>データがありません。</li>
-                <?php endif; ?>
-            </ul>
-
+            
+            <?php foreach ($folders as $folder): ?>
             <div class="folder" id="folder-1" draggable="true" ondragstart="drag(event)">
-                <a href="#" onclick="showBookmarks(this)">フォルダ 1</a>
+            <a href="#" onclick="showBookmarks(this)"><?php echo htmlspecialchars($folder['name']); ?></a>
                 <button class="add-subfolder-btn" onclick="addSubfolder(this)">サブフォルダ追加</button>
             </div>
+            <?php endforeach; ?>
         </div>
 
         <div class="content">
