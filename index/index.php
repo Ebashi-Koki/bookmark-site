@@ -18,9 +18,6 @@
         </div>
     </header>
     <div class="main">
-        <div class="sidebar">
-            
-            <h2>フォルダ</h2>
             <?php
             $servername = "localhost";
             $username = "root";
@@ -34,7 +31,11 @@
             if ($conn->connect_error) {
                 die("Connection failed: " . $conn->connect_error);
             }
-
+            ?>
+        <div class="sidebar">
+            
+            <h2>フォルダ</h2>
+            <?php
             // フォルダ取得処理
             $folders = [];
             $result = $conn->query("SELECT * FROM folders");
@@ -43,7 +44,6 @@
             }
             $conn->close();
             
-
             // 取得した想定でデータを直接埋め込む
             ?>
             
@@ -56,12 +56,35 @@
         </div>
 
         <div class="content">
+            <?php
+            $bookmarks = [];
+            $result = $conn->query("SELECT * FROM bookmarks");
+            while ($row = $result->fetch_assoc()) {
+                $bookmarks[] = $row;
+            }
+            $conn->close();
+            ?>
+
             <div class="content-header">
                 <h2 id="current-folder-name">ブックマーク</h2>
                 <button id="add-bookmark-btn" onclick="addBookmark(this)">ブックマーク追加</button>
                 <button id="edit-folder-btn" onclick="editFolderName(this)">名称変更</button>
             </div>
-            <div id="bookmarks-container"></div>
+            <div id="bookmarks-container"></div>            
+ 
+
+            <div class="bookmark" id="bookmark-1" draggabble="true" ondragstart="drag(event)">
+               <div class="bookmark-title">新しいブックマーク</div>
+               <div class="bookmark-url"><a href="https://www.deeplol.gg/champions" target="_blank">https://www.deeplol.gg/champions</a></div>
+               <div class="bookmark-tags">
+               <input type="text" placeholder="タグを追加..." onkeydown="addTag(event, this)">
+        </div>
+            </div>
+            
+
+            
+
+            
         </div>
 
         <div class="right-sidebar">
