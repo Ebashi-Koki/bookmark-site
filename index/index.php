@@ -7,18 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <header>
-        <h1>LinkNest</h1>
-        <div class="header-right">
-            <input type="text" id="search" placeholder="検索..." onkeyup="searchFolders()">
-            <button onclick="addFolder()">フォルダ追加</button>
-            <button>所属グループ</button>
-            <button>ユーザ</button>
-            <button>ログアウト</button>
-        </div>
-    </header>
-    <div class="main">
-            <?php
+       <?php
             $servername = "localhost";
             $username = "root";
             $password = "";
@@ -31,9 +20,26 @@
             if ($conn->connect_error) {
                 die("Connection failed: " . $conn->connect_error);
             }
-            ?>
+
+            session_start();
+            if (!isset($_SESSION['username'])) {
+            header('Location: login.php');
+            exit;
+            }
+        ?>
+
+    <header>
+        <h1>LinkNest</h1>
+        <div class="header-right">
+            <input type="text" id="search" placeholder="検索..." onkeyup="searchFolders()">
+            <button onclick="addFolder()">フォルダ追加</button>
+            <button>所属グループ</button>
+            <button>ユーザ</button>
+            <button>ログアウト</button>
+        </div>
+    </header>
+    <div class="main">
         <div class="sidebar">
-            
             <h2>フォルダ</h2>
             <?php
             // フォルダ取得処理
@@ -42,7 +48,6 @@
             while ($row = $result->fetch_assoc()) {
                 $folders[] = $row;
             }
-            $conn->close();
             
             // 取得した想定でデータを直接埋め込む
             ?>
@@ -53,6 +58,8 @@
                 <button class="add-subfolder-btn" onclick="addSubfolder(this)">サブフォルダ追加</button>
             </div>
             <?php endforeach; ?>
+
+            
         </div>
 
         <div class="content">
@@ -72,19 +79,21 @@
             </div>
             <div id="bookmarks-container"></div>            
  
-
-            <div class="bookmark" id="bookmark-1" draggabble="true" ondragstart="drag(event)">
-               <div class="bookmark-title">新しいブックマーク</div>
-               <div class="bookmark-url"><a href="https://www.deeplol.gg/champions" target="_blank">https://www.deeplol.gg/champions</a></div>
-               <div class="bookmark-tags">
-               <input type="text" placeholder="タグを追加..." onkeydown="addTag(event, this)">
-        </div>
-            </div>
-            
-
-            
-
-            
+            <?php foreach ($bookmarks as $bookmark): ?>
+               <div class="bookmark" id="bookmark-1" draggabble="true" ondragstart="drag(event)">
+                   <div class="bookmark-title">
+                        <?php echo htmlspecialchars($bookmark['title']); ?>
+                   </div>
+                   <div class="bookmark-url">
+                        <a href="<?php echo htmlspecialchars($bookmark['url']); ?>" target="_blank">
+                            <?php echo htmlspecialchars($bookmark['url']); ?>
+                        </a>
+                   </div>
+                   <div class="bookmark-tags">
+                        <input type="text" placeholder="タグを追加..." onkeydown="addTag(event, this)">
+                   </div>
+               </div>
+            <?php endforeach; ?>
         </div>
 
         <div class="right-sidebar">
