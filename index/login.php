@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
         <?php
+            
+            if (isset($_COOKIE["PHPSESSID"])) {
+                setcookie("PHPSESSID", '', time() - 1800, '/');
+            }
+
             $servername = "localhost";
             $username = "root";
             $password = "";
@@ -14,9 +19,6 @@
                 die("Connection failed: " . $conn->connect_error);
             }
 
-            
-            
-            
         ?>
     <head>
         <meta charset="UTF-8">
@@ -27,25 +29,31 @@
         <div class="login-container">
             <h1>ログイン</h1>
             <form method="POST">
-            <?php
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $login_username = $_POST['username'];
-                $login_password = $_POST['password'];
+
+                <?php
+                session_start();
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                        $login_username = $_POST['username'];
+                        $login_password = $_POST['password'];
             
-                $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
-                $stmt->bind_param("s", $login_username); 
-                $stmt->execute();
-                $result = $stmt->get_result();
-                $user = $result->fetch_assoc();
+                        $stmt = $conn->prepare("SELECT * FROM users WHERE username = ?");
+                        $stmt->bind_param("s", $login_username); 
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $user = $result->fetch_assoc();
             
-                if ($user && password_verify($login_password, $user['password'])) {
-                    $message = "ログイン成功 ようこそ、{$user['username']}さん。";
-                    header('Location: index.php');
-                } else {
-                    $message = "ユーザー名またはパスワードが間違っています。";
-                }
-            }
-            ?>
+                        if ($user && password_verify($login_password, $user['password'])) {
+                            $_SESSION['user_id'] = $user['id']; 
+                            $_SESSION['username'] = $user['username'];
+                            $message = "ログイン成功 ようこそ、{$user['username']}さん。";
+                            header('Location: index.php');
+                            exit();
+                        } else {
+                            $message = "ユーザー名またはパスワードが間違っています。";
+                        }
+                    }
+                ?>
+
                 <div class="form-group">
                     <label for="username">ユーザー名</label>
                     <input type="text" id="username" name="username" required>
@@ -55,9 +63,7 @@
                 </div>
             </form>
 
-            <?php if ($message): ?>
-                <p><?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php endif; ?>
+            
         </div>
     </body>
 </html>
