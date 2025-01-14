@@ -69,7 +69,6 @@
             while ($row = $result->fetch_assoc()) {
                 $bookmarks[] = $row;
             }
-            $conn->close();
             ?>
 
             <div class="content-header">
@@ -100,8 +99,34 @@
             <h3>タグ</h3>
             <input type="text" id="search" placeholder="検索..." onkeyup="searchFolders()">
             <div class="" id="">
+            <?php
+            $sql = "SELECT * FROM bookmarks ORDER BY tags ASC";
+            $result = $conn->query($sql);
+        
+            if ($result->num_rows > 0) {
+                $tags = [];
+                while($row = $result->fetch_assoc()) {
+                    $tags[] = $row;
+                }
+            } else {
+                $tags = [];
+            }
+            ?>
+            <h4>タグ一覧</h4>
+            <?php if (!empty($tags)): ?>
+                <table>
+                    <tbody>
+                        <?php foreach ($tags as $tag): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($tag['tags'], ENT_QUOTES, 'UTF-8'); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>タグが見つかりません。</p>
+            <?php endif; ?>
         </div>
-
     </div>
     <script src="../js/bookmark.js"></script>
 </body>

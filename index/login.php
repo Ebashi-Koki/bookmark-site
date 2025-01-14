@@ -52,6 +52,8 @@
                             $message = "ユーザー名またはパスワードが間違っています。";
                         }
                     }
+                    
+                    $conn->close();
                 ?>
 
                 <div class="form-group">
@@ -60,6 +62,7 @@
                     <label for="password">パスワード</label>
                     <input type="password" id="password" name="password" required>
                     <button type="sumit">ログイン</button>
+                    <p>アカウントをお持ちでない方は <a href="touroku.php">登録ページ</a> へ</p>
                 </div>
             </form>
 
