@@ -34,7 +34,39 @@
             <input type="text" id="search" placeholder="検索..." onkeyup="searchFolders()">
             <button onclick="addFolder()">フォルダ追加</button>
             <button>所属グループ</button>
-            <button>ユーザ</button>
+
+            <?php
+        
+            if (!isset($_SESSION['user_id'])) {
+                header("Location: login.php");
+                exit();
+            }
+            
+            $user_id = $_SESSION['user_id'];
+
+            $stmt = $conn->prepare("SELECT username, email, password FROM users WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $user = $result->fetch_assoc();
+            $stmt->close();
+            ?>
+
+            <label for="user-modal-toggle" class="user-button">ユーザ</label>
+            <input type="checkbox" id="user-modal-toggle" class="modal-toggle">
+            <div class="modal">
+                <div class="modal-content">
+                    <label for="user-modal-toggle" class="close-modal-button">&times;</label>
+                    <form method="POST">
+                        <p>ユーザー名: <?php echo htmlspecialchars($user['username']); ?></p>
+                        <p>メールアドレス: <?php echo htmlspecialchars($user['email']); ?></p>
+                    </form>
+                    <form action="henkou.php" method="GET">
+                        <input type="submit" value="ユーザー情報を変更">
+                    </form>
+                </div>
+            </div>
+
             <button>ログアウト</button>
         </div>
     </header>
