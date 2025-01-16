@@ -20,10 +20,13 @@ if ($conn->connect_error) {
 
 $user_id = $_SESSION['user_id'];
 
+// ユーザー情報をデータベースから取得
 $stmt = $conn->prepare("SELECT username, email FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
+$stmt->store_result();
+$stmt->bind_result($henkou_username, $email);
+$stmt->fetch();
 $stmt->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -89,34 +92,120 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ユーザー情報変更</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border: 2px solid #cccccc;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .form-container h1 {
+            text-align: center;
+            color: #333333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="email"],
+        .form-container input[type="password"] {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-container .message {
+            color: #d9534f;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .form-container .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .form-container .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .form-container .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .form-container input[type="password"] {
+            border: 1px solid #007bff;
+        }
+
+        .form-container p {
+            font-size: 20px;
+        }
+    </style>
 </head>
 <body>
-
-<h2>ユーザー情報変更</h2>
-<p>現在のユーザー名: <?php echo htmlspecialchars($user['username']); ?></p>
-<p>現在のメールアドレス: <?php echo htmlspecialchars($user['email']); ?></p>
-
-<form method="POST" action="">
-    <div>
-        <label for="new_username">新しいユーザー名:</label>
-        <input type="text" id="new_username" name="new_username">
+    <div class="form-container">
+        <h2>ユーザー情報変更</h2>
+        <form method="POST" action="">
+            <label for="new_username">ユーザー名:</label>
+            <input type="text" name="new_username" placeholder="ユーザー名" value="<?php echo htmlspecialchars($henkou_username); ?>" required onfocus="this.select()">
+            <label for="new_email">メールアドレス:</label>
+            <input type="email" name="new_email" placeholder="メールアドレス" value="<?php echo htmlspecialchars($email); ?>" required onfocus="this.select()">
+            <div>
+                <label for="new_password">新しいパスワード:</label>
+                <input type="password" id="new_password" name="new_password">
+            </div>
+            <div>
+                <label for="confirm_password">確認用パスワード:</label>
+                <input type="password" id="confirm_password" name="confirm_password">
+            </div>
+            <div>
+                <button type="submit">変更</button>
+            </div>
+        </form>
     </div>
-    <div>
-        <label for="new_email">新しいメールアドレス:</label>
-        <input type="email" id="new_email" name="new_email">
-    </div>
-    <div>
-        <label for="new_password">新しいパスワード:</label>
-        <input type="password" id="new_password" name="new_password">
-    </div>
-    <div>
-        <label for="confirm_password">確認用パスワード:</label>
-        <input type="password" id="confirm_password" name="confirm_password">
-    </div>
-    <div>
-        <button type="submit">変更</button>
-    </div>
-</form>
-
 </body>
 </html>
