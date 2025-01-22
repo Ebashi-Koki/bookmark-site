@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
         <?php
-            
-            if (isset($_COOKIE["PHPSESSID"])) {
-                setcookie("PHPSESSID", '', time() - 1800, '/');
+            session_start();
+            if (isset($_SESSION['user_id'])) {
+                session_destroy(); // サーバー側のセッションデータを破棄
             }
 
             $servername = "localhost";
@@ -110,7 +110,6 @@
             <form method="POST">
 
                 <?php
-                session_start();
                     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $login_username = $_POST['username'];
                         $login_password = $_POST['password'];
