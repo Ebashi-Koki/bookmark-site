@@ -1,3 +1,11 @@
+<?php
+    namespace App\Controller;
+
+    use Cake\Mailer\Mailer;
+    
+    
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -7,27 +15,6 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-       <?php
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            $dbname = "bookmark_db";
-
-            // データベース接続
-            $conn = new mysqli($servername, $username, $password, $dbname);
-
-            // 接続確認
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
-            session_start();
-            if (!isset($_SESSION['username'])) {
-            header('Location: login.php');
-            exit;
-            }
-        ?>
-
     <header>
         <h1>LinkNest</h1>
         <div class="header-right">
@@ -35,85 +22,102 @@
             <button onclick="addFolder()">フォルダ追加</button>
 
             <?php
-            $user_id = $_SESSION['user_id'];
-            $groups = [];
-            $stmt = $conn->prepare("SELECT groups.id, groups.name  FROM groups  JOIN user_groups ON groups.id = user_groups.group_id  WHERE user_groups.user_id = ?");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->store_result();
-            $stmt->bind_result($group_id, $group_name);
-            while ($stmt->fetch()) {
-                $groups[] = ['id' => $group_id, 'name' => $group_name];
-            }
-            $stmt->close();
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_group'])) {
-                $group_name = $_POST['group_name'];
-                $stmt = $conn->prepare("INSERT INTO groups (name) VALUES (?)");
-                $stmt->bind_param("s", $group_name);
-                $stmt->execute();
-                $new_group_id = $stmt->insert_id;
-                $stmt->close();
-                
-                $stmt = $conn->prepare("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)");
-                $stmt->bind_param("ii", $user_id, $new_group_id);
-                $stmt->execute();
-                $stmt->close();
-            }
-
-            // if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['join_group'])) {
-            //     $group_id = $_POST['group_id'];
-            //     $stmt = $conn->prepare("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)");
-            //     $stmt->bind_param("ii", $user_id, $group_id);
-            //     $stmt->execute();
-            //     $stmt->close();
-            // }
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_invite'])) {
-                $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-                $groupId = intval($_POST['group_id']);
-            
-                if ($email && $groupId) {
-                    $inviteLink = "http://yourdomain.com/group_invite.php?group_id=$groupId&email=" . urlencode($email);
-            
-                    $subject = "グループ招待";
-                    $message = "以下のリンクからグループに参加できます:\n\n$inviteLink";
-                    $headers = "From: no-reply@yourdomain.com";
-            
-                    if (mail($email, $subject, $message, $headers)) {
-                        $successMessage = "招待メールを送信しました。";
-                    } else {
-                        $errorMessage = "招待メールの送信に失敗しました。";
+            class GroupsController extends AppController
+            {
+                public function invite()
+                {
+                    $servername = "localhost";
+                    $username = "root";
+                    $password = "";
+                    $dbname = "bookmark_db";
+             
+                    // データベース接続
+                    $conn = new mysqli($servername, $username, $password, $dbname);
+             
+                    // 接続確認
+                    if ($conn->connect_error) {
+                        die("Connection failed: " . $conn->connect_error);
                     }
-                } else {
-                    $errorMessage = "有効なメールアドレスを入力してください。";
-                }
-            }
+             
+                    session_start();
+                    if (!isset($_SESSION['username'])) {
+                        header('Location: login.php');
+                        exit;
+                    }   
 
-            if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['group_id'], $_GET['email'])) {
-                $groupId = intval($_GET['group_id']);
-                $email = filter_var($_GET['email'], FILTER_VALIDATE_EMAIL);
-            
-                if ($email && $groupId) {
-                    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-                    $stmt->bind_param("s", $email);
+                    $user_id = $_SESSION['user_id'];
+                    $groups = [];
+                    $stmt = $conn->prepare("SELECT groups.id, groups.name  FROM groups  JOIN user_groups ON groups.id = user_groups.group_id  WHERE user_groups.user_id = ?");
+                    $stmt->bind_param("i", $user_id);
                     $stmt->execute();
-                    $stmt->bind_result($userId);
-                    if ($stmt->fetch()) {
-                        $stmt->close();
-                        $stmt = $conn->prepare("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)");
-                        $stmt->bind_param("ii", $userId, $groupId);
-                        if ($stmt->execute()) {
-                            $successMessage = "グループに参加しました。";
-                        } else {
-                            $errorMessage = "グループ参加に失敗しました。";
-                        }
-                        $stmt->close();
-                    } else {
-                        $errorMessage = "招待されたメールアドレスが見つかりません。";
+                    $stmt->store_result();
+                    $stmt->bind_result($group_id, $group_name);
+                    while ($stmt->fetch()) {
+                        $groups[] = ['id' => $group_id, 'name' => $group_name];
                     }
-                } else {
-                    $errorMessage = "無効なリンクです。";
+                    $stmt->close();
+
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_group'])) {
+                    $group_name = $_POST['group_name'];
+                    $stmt = $conn->prepare("INSERT INTO groups (name) VALUES (?)");
+                    $stmt->bind_param("s", $group_name);
+                    $stmt->execute();
+                    $new_group_id = $stmt->insert_id;
+                    $stmt->close();
+                
+                    $stmt = $conn->prepare("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)");
+                    $stmt->bind_param("ii", $user_id, $new_group_id);
+                    $stmt->execute();
+                    $stmt->close();
+                }
+
+                //     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['join_group'])) {
+                //     $group_id = $_POST['group_id'];
+                //     $stmt = $conn->prepare("INSERT INTO user_groups (user_id, group_id) VALUES (?, ?)");
+                //     $stmt->bind_param("ii", $user_id, $group_id);
+                //     $stmt->execute();
+                //     $stmt->close();
+                //     }
+
+                    if ($this->request->is('post')) {
+                        $email = $this->request->getData('email'); 
+                        $groupId = $this->request->getData('group_id'); 
+
+                        $inviteLink = Router::url([
+                            'controller' => 'Groups',
+                            'action' => 'acceptInvite',
+                            $groupId
+                        ], true); 
+
+                    $mailer = new Mailer('default');
+                        $mailer->setTo($email)
+                        ->setSubject('グループ招待')
+                        ->deliver("以下のリンクをクリックしてグループに参加してください：\n\n" . $inviteLink);
+
+                        $this->Flash->success(__('招待メールを送信しました。'));
+                    }
+                    $this->loadModel('Groups');
+                    $groups = $this->Groups->find('list')->toArray();
+
+                    $this->set(compact('groups'));
+                }
+
+                public function acceptInvite($groupId)
+                {
+                    $this->loadModel('UserGroups');
+                    $userId = $this->Auth->user('id'); 
+            
+                    $userGroup = $this->UserGroups->newEmptyEntity();
+                    $userGroup->user_id = $userId;
+                    $userGroup->group_id = $groupId;
+            
+                    if ($this->UserGroups->save($userGroup)) {
+                        $this->Flash->success(__('グループに参加しました。'));
+                    } else {
+                        $this->Flash->error(__('グループ参加に失敗しました。'));
+                    }
+            
+                    return $this->redirect(['controller' => 'Groups', 'action' => 'index']);
                 }
             }
 
@@ -152,10 +156,16 @@
                             <div class="message error"><?php echo $errorMessage; ?></div>
                         <?php endif; ?>
 
-                        <h2>グループ招待メールを送信</h2>
-                            <input type="email" name="email" placeholder="招待するメールアドレス" required>
-                            <input type="number" name="group_id" placeholder="グループID" required>
-                            <button type="submit" name="send_invite">招待メールを送信</button>
+                        <h1>グループに招待</h1>
+
+                        <?= $this->Form->create(null) ?>
+                            <fieldset>
+                                <legend><?= __('招待を送信') ?></legend>
+                                <?= $this->Form->control('email', ['label' => 'メールアドレス']) ?>
+                                <?= $this->Form->control('group_id', ['label' => 'グループ', 'options' => $groups]) ?>
+                           </fieldset>
+                           <?= $this->Form->button(__('招待を送信')) ?>
+                        <?= $this->Form->end() ?>
                     </form>
                 </div>
             </div>
