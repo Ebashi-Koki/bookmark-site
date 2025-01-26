@@ -1,7 +1,7 @@
 <?php
-    namespace App\Controller;
+    // require_once '../vendor/autoload.php';
 
-    use Cake\Mailer\Mailer;
+    use App\Controller\AppController;
     
     
 ?>
